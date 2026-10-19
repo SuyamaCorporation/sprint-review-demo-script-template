@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agile Sprint Review Demo Script Builder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .tab-btn.active { background: #0ea5e9; color: white; }
+    textarea { resize: vertical; }
+    #script-output { white-space: pre-wrap; font-family: 'Courier New', monospace; line-height: 1.7; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; color: black; }
+      #script-output { color: black; background: white; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body class="bg-sky-950 text-sky-100 min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-sky-900 border-b border-sky-800 sticky top-0 z-10 no-print">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-sky-500 rounded-xl flex items-center justify-center" aria-hidden="true">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-white">Sprint Review Builder</h1>
+          <p class="text-xs text-sky-400">Agile Demo Script Template</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="clearAll()" class="px-3 py-2 text-sm bg-sky-800 hover:bg-sky-700 text-sky-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500" aria-label="Clear all data">Clear</button>
+        <button onclick="generateScript()" class="px-4 py-2 text-sm bg-sky-500 hover:bg-sky-400 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400" aria-label="Generate sprint review script">Generate Script</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="bg-sky-900 border-b border-sky-800 no-print" role="tablist" aria-label="Sprint review sections">
+    <div class="max-w-5xl mx-auto px-4 flex gap-1 py-2 overflow-x-auto">
+      <button onclick="showTab('sprint')" id="tab-sprint" class="tab-btn active px-4 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-sky-400" role="tab" aria-selected="true" aria-controls="sprint-panel">Sprint Info</button>
+      <button onclick="showTab('demo')" id="tab-demo" class="tab-btn px-4 py-1.5 rounded-lg text-sm font-medium text-sky-400 hover:text-white transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-sky-400" role="tab" aria-selected="false" aria-controls="demo-panel">Demo Items</button>
+      <button onclick="showTab('metrics')" id="tab-metrics" class="tab-btn px-4 py-1.5 rounded-lg text-sm font-medium text-sky-400 hover:text-white transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-sky-400" role="tab" aria-selected="false" aria-controls="metrics-panel">Metrics</button>
+      <button onclick="showTab('backlog')" id="tab-backlog" class="tab-btn px-4 py-1.5 rounded-lg text-sm font-medium text-sky-400 hover:text-white transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-sky-400" role="tab" aria-selected="false" aria-controls="backlog-panel">Backlog & Next</button>
+      <button onclick="showTab('script')" id="tab-script" class="tab-btn px-4 py-1.5 rounded-lg text-sm font-medium text-sky-400 hover:text-white transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-sky-400" role="tab" aria-selected="false" aria-controls="script-panel">Script</button>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 py-6">
+
+    <!-- Sprint Info Panel -->
+    <div id="sprint-panel" role="tabpanel" aria-labelledby="tab-sprint">
+      <div class="bg-sky-900/50 border border-sky-800 rounded-2xl p-6 space-y-5">
+        <h2 class="text-base font-bold text-white mb-2">Sprint Details</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="sprint-number" class="block text-xs font-medium text-sky-300 mb-1">Sprint Number *</label>
+            <input type="number" id="sprint-number" placeholder="e.g. 14" min="1" oninput="autosave()"
+              class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+              aria-required="true" aria-label="Sprint number" />
+          </div>
+          <div>
+            <label for="sprint-start" class="block text-xs font-medium text-sky-300 mb-1">Sprint Start Date</label>
+            <input type="date" id="sprint-start" oninput="autosave()"
+              class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400"
+              aria-label="Sprint start date" />
+          </div>
+          <div>
+            <label for="sprint-end" class="block text-xs font-medium text-sky-300 mb-1">Sprint End Date</label>
+            <input type="date" id="sprint-end" oninput="autosave()"
+              class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400"
+              aria-label="Sprint end date" />
+          </div>
+        </div>
+        <div>
+          <label for="team-name" class="block text-xs font-medium text-sky-300 mb-1">Team Name</label>
+          <input type="text" id="team-name" placeholder="e.g. Phoenix Team" oninput="autosave()"
+            class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400"
+            aria-label="Team name" />
+        </div>
+        <div>
+          <label for="sprint-goal" class="block text-xs font-medium text-sky-300 mb-1">Sprint Goal</label>
+          <input type="text" id="sprint-goal" placeholder="e.g. Ship user authentication and onboarding flow" oninput="autosave()"
+            class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400"
+            aria-label="Sprint goal" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-sky-300 mb-2">Was the Sprint Goal Met?</label>
+          <div class="flex gap-5">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="goal-met" id="goal-yes" value="yes" class="accent-sky-500" aria-label="Sprint goal was met" oninput="autosave()" checked />
+              <span class="text-white text-sm">Yes ✅</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="goal-met" id="goal-no" value="no" class="accent-sky-500" aria-label="Sprint goal was not met" oninput="autosave()" />
+              <span class="text-white text-sm">No ⚠️</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="goal-met" id="goal-partial" value="partial" class="accent-sky-500" aria-label="Sprint goal was partially met" oninput="autosave()" />
+              <span class="text-white text-sm">Partially 🔄</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label for="goal-notes" class="block text-xs font-medium text-sky-300 mb-1">Goal Notes (context for any gaps)</label>
+          <textarea id="goal-notes" rows="2" placeholder="Any context on why the goal was/wasn't fully met…" oninput="autosave()"
+            class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400 placeholder-sky-700"
+            aria-label="Sprint goal notes"></textarea>
+        </div>
+        <div class="pt-2">
+          <button onclick="showTab('demo')" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400" aria-label="Next: Demo Items">Next: Demo Items →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo Items Panel -->
+    <div id="demo-panel" class="hidden" role="tabpanel" aria-labelledby="tab-demo">
+      <div class="bg-sky-900/50 border border-sky-800 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-bold text-white">Demo Items</h2>
+          <button onclick="addDemoItem()" class="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400" aria-label="Add demo item">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Item
+          </button>
+        </div>
+        <div id="demo-items-container" class="space-y-4"></div>
+        <div id="demo-empty" class="py-8 text-center text-sky-600 text-sm hidden">No demo items yet. Click "Add Item" above.</div>
+        <div class="pt-4 flex gap-3">
+          <button onclick="showTab('metrics')" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400" aria-label="Next: Metrics">Next: Metrics →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Panel -->
+    <div id="metrics-panel" class="hidden" role="tabpanel" aria-labelledby="tab-metrics">
+      <div class="bg-sky-900/50 border border-sky-800 rounded-2xl p-6 space-y-4">
+        <h2 class="text-base font-bold text-white mb-2">Sprint Metrics</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="m-planned-points" class="block text-xs font-medium text-sky-300 mb-1">Planned Story Points</label>
+            <input type="number" id="m-planned-points" placeholder="e.g. 42" min="0" oninput="autosave()"
+              class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400" aria-label="Planned story points" />
+          </div>
+          <div>
+            <label for="m-completed-points" class="block text-xs font-medium text-sky-300 mb-1">Completed Story Points (Velocity)</label>
+            <input type="number" id="m-completed-points" placeholder="e.g. 38" min="0" oninput="autosave()"
+              class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400" aria-label="Completed story points (velocity)" />
+          </div>
+          <div>
+            <label for="m-stories-completed" class="block text-xs font-medium text-sky-300 mb-1">Stories Completed</label>
+            <input type="number" id="m-stories-completed" placeholder="e.g. 12" min="0" oninput="autosave()"
+              class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400" aria-label="Number of stories completed" />
+          </div>
+          <div>
+            <label for="m-bugs-closed" class="block text-xs font-medium text-sky-300 mb-1">Bugs Closed</label>
+            <input type="number" id="m-bugs-closed" placeholder="e.g. 7" min="0" oninput="autosave()"
+              class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400" aria-label="Number of bugs closed" />
+          </div>
+          <div>
+            <label for="m-bugs-opened" class="block text-xs font-medium text-sky-300 mb-1">New Bugs Opened</label>
+            <input type="number" id="m-bugs-opened" placeholder="e.g. 3" min="0" oninput="autosave()"
+              class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400" aria-label="Number of new bugs opened" />
+          </div>
+          <div>
+            <label for="m-team-capacity" class="block text-xs font-medium text-sky-300 mb-1">Team Capacity Used (%)</label>
+            <input type="number" id="m-team-capacity" placeholder="e.g. 90" min="0" max="100" oninput="autosave()"
+              class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400" aria-label="Team capacity used percentage" />
+          </div>
+        </div>
+        <div>
+          <label for="m-notes" class="block text-xs font-medium text-sky-300 mb-1">Metrics Notes / Context</label>
+          <textarea id="m-notes" rows="3" placeholder="Any context about the metrics — interruptions, vacation, incidents…" oninput="autosave()"
+            class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400 placeholder-sky-700"
+            aria-label="Metrics notes" ></textarea>
+        </div>
+        <div class="pt-2">
+          <button onclick="showTab('backlog')" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400" aria-label="Next: Backlog">Next: Backlog & Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Backlog & Next Sprint Panel -->
+    <div id="backlog-panel" class="hidden" role="tabpanel" aria-labelledby="tab-backlog">
+      <div class="bg-sky-900/50 border border-sky-800 rounded-2xl p-6 space-y-4">
+        <h2 class="text-base font-bold text-white mb-2">Backlog Updates & Next Sprint</h2>
+        <div>
+          <label for="backlog-updates" class="block text-xs font-medium text-sky-300 mb-1">Backlog Updates</label>
+          <textarea id="backlog-updates" rows="4" placeholder="What changed in the backlog? New items added, items reprioritized, items removed…" oninput="autosave()"
+            class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400 placeholder-sky-700"
+            aria-label="Backlog updates"></textarea>
+        </div>
+        <div>
+          <label for="next-sprint-goal" class="block text-xs font-medium text-sky-300 mb-1">Next Sprint Goal</label>
+          <input type="text" id="next-sprint-goal" placeholder="e.g. Complete payment integration and launch beta to 100 users" oninput="autosave()"
+            class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400"
+            aria-label="Next sprint goal" />
+        </div>
+        <div>
+          <label for="next-sprint-preview" class="block text-xs font-medium text-sky-300 mb-1">Next Sprint Preview (top items)</label>
+          <textarea id="next-sprint-preview" rows="4" placeholder="List the top stories/features planned for next sprint…" oninput="autosave()"
+            class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400 placeholder-sky-700"
+            aria-label="Next sprint preview"></textarea>
+        </div>
+        <div>
+          <label for="open-questions" class="block text-xs font-medium text-sky-300 mb-1">Open Questions / Action Items from Review</label>
+          <textarea id="open-questions" rows="3" placeholder="Questions raised by stakeholders, decisions needed, follow-up actions…" oninput="autosave()"
+            class="w-full bg-sky-900 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400 placeholder-sky-700"
+            aria-label="Open questions and action items"></textarea>
+        </div>
+        <div class="pt-2">
+          <button onclick="generateScript()" class="bg-sky-500 hover:bg-sky-400 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400" aria-label="Generate sprint review script">Generate Script →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script Panel -->
+    <div id="script-panel" class="hidden" role="tabpanel" aria-labelledby="tab-script">
+      <div class="bg-sky-900/50 border border-sky-800 rounded-2xl p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <h2 class="text-base font-bold text-white">Sprint Review Script</h2>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="copyScript()" class="flex items-center gap-2 bg-sky-700 hover:bg-sky-600 text-white px-4 py-2 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400" aria-label="Copy script to clipboard">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              Copy
+            </button>
+            <button onclick="window.print()" class="flex items-center gap-2 bg-sky-700 hover:bg-sky-600 text-white px-4 py-2 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400" aria-label="Print script">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              Print
+            </button>
+            <div id="copy-toast-script" class="hidden text-emerald-400 text-sm self-center" role="alert" aria-live="polite">Copied!</div>
+          </div>
+        </div>
+        <div id="script-output" class="bg-sky-950 border border-sky-800 rounded-xl p-6 text-sky-100 text-sm leading-relaxed overflow-auto min-h-64" aria-label="Generated sprint review script" tabindex="0"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.appendChild(document.createTextNode(String(s ?? '')));
+      return d.innerHTML;
+    }
+
+    const STORAGE_KEY = 'sprint-review-v1';
+    let demoItems = [];
+
+    const TABS = ['sprint', 'demo', 'metrics', 'backlog', 'script'];
+
+    function showTab(name) {
+      TABS.forEach(t => {
+        document.getElementById(t + '-panel').classList.toggle('hidden', t !== name);
+        const btn = document.getElementById('tab-' + t);
+        btn.classList.toggle('active', t === name);
+        btn.setAttribute('aria-selected', t === name);
+        if (t !== name) btn.classList.add('text-sky-400');
+        else btn.classList.remove('text-sky-400');
+      });
+      if (name === 'script') generateScript();
+    }
+
+    // Demo Items
+    function addDemoItem(item = null) {
+      const id = item?.id || crypto.randomUUID();
+      if (!item) {
+        demoItems.push({ id, description: '', outcome: '' });
+        autosave();
+      }
+      renderDemoItems();
+    }
+
+    function removeDemoItem(id) {
+      demoItems = demoItems.filter(d => d.id !== id);
+      autosave();
+      renderDemoItems();
+    }
+
+    function renderDemoItems() {
+      const container = document.getElementById('demo-items-container');
+      const empty = document.getElementById('demo-empty');
+      if (demoItems.length === 0) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      container.innerHTML = demoItems.map((item, i) => `
+        <div class="bg-sky-900 border border-sky-700 rounded-xl p-4" data-id="${escapeHtml(item.id)}">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-sky-400 uppercase tracking-wide">Demo Item ${i + 1}</span>
+            <button onclick="removeDemoItem('${escapeHtml(item.id)}')" class="text-sky-600 hover:text-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400 rounded p-0.5" aria-label="Remove demo item ${i + 1}">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-sky-300 mb-1">Feature / Story Description *</label>
+              <input type="text" placeholder="e.g. User login with Google OAuth" value="${escapeHtml(item.description)}"
+                oninput="updateDemoItem('${escapeHtml(item.id)}', 'description', this.value)"
+                class="w-full bg-sky-950 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400"
+                aria-label="Demo item ${i + 1} description" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-sky-300 mb-1">Demo Outcome / Key Points</label>
+              <textarea placeholder="What will you show? What's the expected outcome? Any caveats?" rows="2"
+                oninput="updateDemoItem('${escapeHtml(item.id)}', 'outcome', this.value)"
+                class="w-full bg-sky-950 border border-sky-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-sky-400 placeholder-sky-800"
+                aria-label="Demo item ${i + 1} outcome">${escapeHtml(item.outcome)}</textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateDemoItem(id, field, value) {
+      const item = demoItems.find(d => d.id === id);
+      if (item) { item[field] = value; autosave(); }
+    }
+
+    // Autosave
+    function autosave() {
+      const data = collectData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function collectData() {
+      return {
+        sprintNumber: document.getElementById('sprint-number').value,
+        sprintStart: document.getElementById('sprint-start').value,
+        sprintEnd: document.getElementById('sprint-end').value,
+        teamName: document.getElementById('team-name').value,
+        sprintGoal: document.getElementById('sprint-goal').value,
+        goalMet: document.querySelector('input[name="goal-met"]:checked')?.value || 'yes',
+        goalNotes: document.getElementById('goal-notes').value,
+        demoItems: JSON.parse(JSON.stringify(demoItems)),
+        mPlannedPoints: document.getElementById('m-planned-points').value,
+        mCompletedPoints: document.getElementById('m-completed-points').value,
+        mStoriesCompleted: document.getElementById('m-stories-completed').value,
+        mBugsClosed: document.getElementById('m-bugs-closed').value,
+        mBugsOpened: document.getElementById('m-bugs-opened').value,
+        mTeamCapacity: document.getElementById('m-team-capacity').value,
+        mNotes: document.getElementById('m-notes').value,
+        backlogUpdates: document.getElementById('backlog-updates').value,
+        nextSprintGoal: document.getElementById('next-sprint-goal').value,
+        nextSprintPreview: document.getElementById('next-sprint-preview').value,
+        openQuestions: document.getElementById('open-questions').value,
+      };
+    }
+
+    function loadSaved() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const d = JSON.parse(raw);
+        const set = (id, val) => { if (val !== undefined && val !== null) { const el = document.getElementById(id); if (el) el.value = val; } };
+        set('sprint-number', d.sprintNumber);
+        set('sprint-start', d.sprintStart);
+        set('sprint-end', d.sprintEnd);
+        set('team-name', d.teamName);
+        set('sprint-goal', d.sprintGoal);
+        if (d.goalMet) { const el = document.querySelector(`input[name="goal-met"][value="${d.goalMet}"]`); if (el) el.checked = true; }
+        set('goal-notes', d.goalNotes);
+        demoItems = d.demoItems || [];
+        set('m-planned-points', d.mPlannedPoints);
+        set('m-completed-points', d.mCompletedPoints);
+        set('m-stories-completed', d.mStoriesCompleted);
+        set('m-bugs-closed', d.mBugsClosed);
+        set('m-bugs-opened', d.mBugsOpened);
+        set('m-team-capacity', d.mTeamCapacity);
+        set('m-notes', d.mNotes);
+        set('backlog-updates', d.backlogUpdates);
+        set('next-sprint-goal', d.nextSprintGoal);
+        set('next-sprint-preview', d.nextSprintPreview);
+        set('open-questions', d.openQuestions);
+        renderDemoItems();
+      } catch(e) {}
+    }
+
+    function generateScript() {
+      showTab('script');
+      const d = collectData();
+      const goalEmoji = d.goalMet === 'yes' ? '✅' : d.goalMet === 'no' ? '⚠️' : '🔄';
+      const goalLabel = d.goalMet === 'yes' ? 'Met' : d.goalMet === 'no' ? 'Not Met' : 'Partially Met';
+      const completionRate = d.mPlannedPoints && d.mCompletedPoints
+        ? Math.round((parseInt(d.mCompletedPoints) / parseInt(d.mPlannedPoints)) * 100) + '%' : '';
+
+      let script = '';
+      const h = (t) => `\n${'='.repeat(60)}\n${t.toUpperCase()}\n${'='.repeat(60)}\n`;
+      const sub = (t) => `\n── ${t} ──\n`;
+      const line = (label, val) => val ? `${label}: ${val}\n` : '';
+
+      script += h('Sprint Review Agenda');
+      script += line('Sprint', d.sprintNumber ? '#' + d.sprintNumber : '');
+      script += line('Dates', [d.sprintStart, d.sprintEnd].filter(Boolean).join(' → '));
+      script += line('Team', d.teamName);
+      script += '\n';
+
+      script += h('1. Opening & Sprint Goal');
+      script += `[FACILITATOR SAYS:]\n"Welcome everyone to the Sprint ${d.sprintNumber || '—'} review. Today we'll walk through what the team accomplished, demo completed features, review our metrics, and discuss what's coming up next."\n\n`;
+      if (d.sprintGoal) {
+        script += `Sprint Goal: "${d.sprintGoal}"\n`;
+        script += `Goal Status: ${goalEmoji} ${goalLabel}\n`;
+        if (d.goalNotes) script += `Notes: ${d.goalNotes}\n`;
+      }
+
+      if (d.demoItems && d.demoItems.length > 0) {
+        script += h('2. Feature Demos');
+        script += `[FACILITATOR SAYS:]\n"Let's walk through the features completed this sprint."\n\n`;
+        d.demoItems.forEach((item, i) => {
+          if (!item.description) return;
+          script += sub(`Demo ${i + 1}: ${item.description}`);
+          script += `[DEVELOPER/PRESENTER:]\n`;
+          if (item.outcome) script += item.outcome + '\n';
+          script += `\n[PAUSE FOR QUESTIONS AND FEEDBACK]\n`;
+        });
+      }
+
+      const hasMetrics = d.mPlannedPoints || d.mCompletedPoints || d.mBugsClosed || d.mStoriesCompleted;
+      if (hasMetrics) {
+        script += h('3. Sprint Metrics');
+        script += line('Planned Story Points', d.mPlannedPoints);
+        script += line('Completed Points (Velocity)', d.mCompletedPoints);
+        if (completionRate) script += `Completion Rate: ${completionRate}\n`;
+        script += line('Stories Completed', d.mStoriesCompleted);
+        script += line('Bugs Closed', d.mBugsClosed);
+        script += line('New Bugs Opened', d.mBugsOpened);
+        script += line('Team Capacity Used', d.mTeamCapacity ? d.mTeamCapacity + '%' : '');
+        if (d.mNotes) script += `\nContext: ${d.mNotes}\n`;
+      }
+
+      if (d.backlogUpdates) {
+        script += h('4. Backlog Updates');
+        script += d.backlogUpdates + '\n';
+      }
+
+      if (d.nextSprintGoal || d.nextSprintPreview) {
+        script += h('5. Next Sprint Preview');
+        if (d.nextSprintGoal) script += `Next Sprint Goal: "${d.nextSprintGoal}"\n\n`;
+        if (d.nextSprintPreview) script += d.nextSprintPreview + '\n';
+      }
+
+      if (d.openQuestions) {
+        script += h('6. Open Questions & Action Items');
+        script += d.openQuestions + '\n';
+      }
+
+      script += h('Closing');
+      script += `[FACILITATOR SAYS:]\n"Thank you all for attending. Please share any additional feedback in our retrospective channel. See you next sprint!"\n\n`;
+      script += `── Generated by Sprint Review Builder • ${new Date().toLocaleDateString()} ──\n`;
+
+      document.getElementById('script-output').textContent = script;
+    }
+
+    async function copyScript() {
+      const text = document.getElementById('script-output').textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        const t = document.getElementById('copy-toast-script');
+        t.classList.remove('hidden');
+        setTimeout(() => t.classList.add('hidden'), 2000);
+      } catch(e) { alert('Copy failed. Please select the text and use Ctrl+C.'); }
+    }
+
+    function clearAll() {
+      if (!confirm('Clear all sprint review data? This cannot be undone.')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+
+    // Input event listeners for radios
+    document.querySelectorAll('input[name="goal-met"]').forEach(el => el.addEventListener('change', autosave));
+
+    loadSaved();
+    renderDemoItems();
+  </script>
+</body>
+</html>
